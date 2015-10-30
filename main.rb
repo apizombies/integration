@@ -4,6 +4,11 @@ require 'github/github'
 require 'slack/slack'
 require 'googleapi'
 
+ZOMBIE_404 = File.expand_path(File.join('..', 'images', 'zombie404.png'), __FILE__)
+ZOMBIE_500 = File.expand_path(File.join('..', 'images', 'zombie500.jpg'), __FILE__)
+
+set :environment, 'production'
+
 before do
   content_type 'application/json'
   parse_json_params params
@@ -12,6 +17,36 @@ end
 def parse_json_params(params)
   body = request.body.read
   params.merge! JSON.parse(body, symbolize_names: true) unless body.empty?
+end
+
+not_found do
+  if request.accept? 'text/html'
+    content_type 'text/html'
+    "<center><h1>The brains you were looking for are not here</h1></center>" \
+    "<center><img src=\"/images/zombie404.png\" alt=\"not found\"></center>"
+  else
+    { status: 'not_found' }.to_json
+  end
+end
+
+error do
+  if request.accept? 'text/html'
+    content_type 'text/html'
+    "<center><h1>The brains you were looking for have exploded</h1></center>" \
+    "<center><img src=\"/images/zombie500.jpg\" alt=\"internal error\"></center>"
+  else
+    { status: 'internal_error' }.to_json
+  end
+end
+
+get '/images/zombie404.png' do
+  content_type 'image/png'
+  File.read(ZOMBIE_404)
+end
+
+get '/images/zombie500.jpg' do
+  content_type 'image/jpeg'
+  File.read(ZOMBIE_500)
 end
 
 delete '/slack/:email' do

@@ -34,12 +34,13 @@ end
 
 post '/slack/message/:email' do
   email = params[:email]
-  slack_token = ENV['slack_token_bot']
+  slack_token_bot = ENV['slack_token_bot']
+  slack_token = ENV['slack_token']
   organization = ENV['organization']
   slack = Slack.new(slack_token)
   message = params[:message]
   puts message
-  slack.send_message(organization, email, message)
+  slack.send_message(organization, email, message, slack_token_bot)
   { status: 'ok' }.to_json
 end
 

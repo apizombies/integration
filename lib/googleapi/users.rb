@@ -78,6 +78,20 @@ module GoogleAPI
         }).data.users
     end
 
+    # mimetype can be something like 'image/jpeg', 'image/png', etc
+    # photodata should contain the whole data for the type (ie, full JPEG file).
+    def set_photo(user_mail_alias_or_id, mimetype, photodata)
+      parameters = {
+        mimeTytpe: mimetype,
+        photoData: photodata
+      }
+      photo = directory_api.users.photos.update.request_schema.new(parameters)
+      apiclient.execute!(
+        api_method: directory_api.users.photos.update,
+        parameters: { userKey: user_mail_alias_or_id },
+        body_object: photo)
+    end
+
     # call this to autogenerate a password - be sure to save it!!
     def self.gen_pwd(len = 14)
       o = [('a'..'z'), ('A'..'Z'), ('0'..'9'), ['.', ';', ':', '$', '%', '#', '@', '?', '!', '*']].map { |i| i.to_a }.flatten

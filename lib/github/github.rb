@@ -14,6 +14,7 @@ class Github
     http = Net::HTTP.new(url.host, url.port)
     http.use_ssl= true
     res,data = http.put(url.path, data, headers)
+	puts res.body
   end
 
   @auth_token=nil
@@ -26,7 +27,7 @@ class Github
     github_delete_api_request("/orgs/#{organization}/memberships/#{username}", {"Authorization" => "token #{@auth_token}"})
   end
 
-  def asociate_user(organization, username, role="owner")
+  def asociate_user(organization, username, role="admin")
     github_add_api_request("/orgs/#{organization}/memberships/#{username}", "{\"role\": \"#{role}\"}" , {"Authorization" => "token #{@auth_token}"})
   end
 end

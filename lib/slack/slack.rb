@@ -42,9 +42,7 @@ class Slack
   end
 
   def disable_user(organization, mail)
-    id=get_user_id(@auth_token, mail)
-    puts(id)
-    disable_user(@auth_token, id)
-    slack_post_api_request("/api/users.admin.setInactive", "token=#{token}&user=#{slack_user_id}&set_active=true")
+    id = get_user_id(@auth_token, mail)
+    slack_post_api_request("/api/users.admin.setInactive", "token=#{@auth_token}&user=#{id}&set_active=true", organization)
   end
 end

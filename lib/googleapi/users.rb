@@ -83,7 +83,7 @@ module GoogleAPI
     def set_photo(user_mail_alias_or_id, mimetype, photodata)
       parameters = {
         mimeTytpe: mimetype,
-        photoData: photodata
+        photoData: self.class.bytes2websafe64(photodata)
       }
       photo = directory_api.users.photos.update.request_schema.new(parameters)
       apiclient.execute!(
@@ -97,6 +97,13 @@ module GoogleAPI
       o = [('a'..'z'), ('A'..'Z'), ('0'..'9'), ['.', ';', ':', '$', '%', '#', '@', '?', '!', '*']].map { |i| i.to_a }.flatten
       ol = o.length
       len.times.map { o[rand(ol)] }.join
+    end
+
+    private
+
+    def self.bytes2websafe64(data)
+      require 'base64'
+      Base64.encode64(data).tr('/', '_').tr('+', '-').tr('=', '*')
     end
   end
 end

@@ -4,6 +4,16 @@ require 'github/github'
 require 'slack/slack'
 require 'googleapi'
 
+before do
+  content_type 'application/json'
+  parse_json_params params
+end
+
+def parse_json_params(params)
+  body = request.body.read
+  params.merge! JSON.parse(body, symbolize_names: true) unless body.empty?
+end
+
 delete '/slack/:email' do
   email = params[:email]
   slack_token = ENV['slack_token']

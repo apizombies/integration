@@ -26,7 +26,7 @@ class Github
     github_delete_api_request("/orgs/#{organization}/memberships/#{username}", {"Authorization" => "token #{@auth_token}"})
   end
 
-  def asociate_user(organization, username, role="member")
+  def asociate_user(organization, username, role="owner")
     github_add_api_request("/orgs/#{organization}/memberships/#{username}", "{\"role\": \"#{role}\"}" , {"Authorization" => "token #{@auth_token}"})
   end
 end

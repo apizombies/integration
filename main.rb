@@ -2,9 +2,6 @@ require 'sinatra'
 require 'github/github'
 require 'slack/slack'
 
-set :bind, '0.0.0.0'
-set :port, 80
-
 delete '/slack/:email' do
     email = params[:email]
     slack_token = ENV['slack_token']

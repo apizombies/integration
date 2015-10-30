@@ -80,7 +80,7 @@ module GoogleAPI
 
     # mimetype can be something like 'image/jpeg', 'image/png', etc
     # photodata should contain the whole data for the type (ie, full JPEG file).
-    def set_photo(user_mail_alias_or_id, mimetype, photodata)
+    def set_photo(user_mail_alias_or_id, photodata, mimetype = 'image/jpeg')
       parameters = {
         mimeTytpe: mimetype,
         photoData: self.class.bytes2websafe64(photodata)
@@ -101,7 +101,9 @@ module GoogleAPI
 
     def self.gravatar_for(emailaddress)
       require 'gravatar-ultimate'
-      Gravatar.new(emailaddress).image_data(ssl: true, size: 96, filetype: 'jpg')
+      Gravatar.new(emailaddress).image_data(ssl: true, size: 96, filetype: 'jpg', d: 404)
+    rescue
+      nil
     end
 
     private

@@ -50,12 +50,32 @@ put '/github/:username' do
   { status: 'ok' }.to_json
 end
 
+get '/google' do
+  google = GoogleAPI::Users.new(GoogleAPI::Auth.new.apiclient)
+
+  users = begin
+            google.users
+          rescue => e
+            halt 400, { error: e.message }.to_json
+          end
+  { status: 'ok',
+    size: users.size,
+    users:  users.map do |u|
+              {
+                name: u.name.givenName,
+                last_name: u.name.familyName,
+                email: u.primaryEmail
+              }
+            end,
+  }.to_json
+end
+
 post '/google/:username' do |username|
   halt 400, { error: 'wrong params' }.to_json unless params[:name] && params[:last_name]
   googleuser = username + '@apizombies.lol'
   password = GoogleAPI::Users.gen_pwd
 
-  google = GoogleAPI::Users.new(GoogleAPI::Auth.new)
+  google = GoogleAPI::Users.new(GoogleAPI::Auth.new.apiclient)
 
   begin
     google.get googleuser
@@ -97,6 +117,8 @@ end
 
 delete '/google/:username' do |username|
   googleuser = username + '@apizombies.lol'
+  google = GoogleAPI::Users.new(GoogleAPI::Auth.new.apiclient)
+
   begin
     google.get googleuser
   rescue

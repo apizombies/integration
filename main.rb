@@ -104,15 +104,16 @@ post '/google/:username' do |username|
     end
   end
 
-  if params[:admin] == 'true'
+  admin = params[:admin] == 'true'
+  if admin
     begin
       google.make_admin googleuser
     rescue => e
-      halt 400, { error: e.message, email: googleuser, password: password, with_photo: with_photo }.to_json
+      halt 400, { error: e.message, email: googleuser, password: password, with_photo: with_photo, admin: false }.to_json
     end
   end
 
-  { status: 'ok', email: googleuser, password: password, with_photo: with_photo }.to_json
+  { status: 'ok', email: googleuser, password: password, with_photo: with_photo, admin: admin }.to_json
 end
 
 delete '/google/:username' do |username|

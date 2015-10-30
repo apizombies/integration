@@ -1,6 +1,8 @@
 require 'sinatra'
+require 'json'
 require 'github/github'
 require 'slack/slack'
+require 'googleapi'
 
 delete '/slack/:email' do
   email = params[:email]
@@ -8,6 +10,7 @@ delete '/slack/:email' do
   organization = ENV['organization']
   slack = Slack.new(slack_token)
   slack.disable_user(organization, email)
+  { status: 'ok' }.to_json
 end
 
 put '/slack/:email' do
@@ -16,6 +19,7 @@ put '/slack/:email' do
   organization = ENV['organization']
   slack = Slack.new(slack_token)
   slack.invite_user(organization, email)
+  { status: 'ok' }.to_json
 end
 
 delete '/github/:username' do
@@ -24,6 +28,7 @@ delete '/github/:username' do
   organization = ENV['organization']
   github = Github.new(github_cred)
   github.dissasociate_user(organization, username)
+  { status: 'ok' }.to_json
 end
 
 put '/github/:username' do
@@ -32,4 +37,66 @@ put '/github/:username' do
   organization = ENV['organization']
   github = Github.new(github_cred)
   github.asociate_user(organization, username)
+  { status: 'ok' }.to_json
+end
+
+post '/google/:username' do |username|
+  halt 400, { error: 'wrong params' }.to_json unless params[:name] && params[:last_name]
+  googleuser = username + '@apizombies.lol'
+  password = GoogleAPI::Users.gen_pwd
+
+  google = GoogleAPI::Users.new(GoogleAPI::Auth.new)
+
+  begin
+    google.get googleuser
+  rescue
+  else
+    halt 400, { error: 'user already exists' }.to_json
+  end
+
+  begin
+    google.insert googleuser, password, params[:name], params[:last_name]
+  rescue => e
+    halt 400, { error: e.message }.to_json
+  end
+
+  with_photo = false
+
+  # gravatar image
+  if params[:email]
+    gravatar = GoogleAPI::Users.gravatar_for params[:email]
+    if gravatar
+      begin
+        google.set_photo(googleuser, gravatar)
+        with_photo = true
+      rescue
+      end
+    end
+  end
+
+  if params[:admin] == 'true'
+    begin
+      google.make_admin googleuser
+    rescue => e
+      halt 400, { error: e.message, email: googleuser, password: password, with_photo: with_photo }.to_json
+    end
+  end
+
+  { status: 'ok', email: googleuser, password: password, with_photo: with_photo }.to_json
+end
+
+delete '/google/:username' do |username|
+  googleuser = username + '@apizombies.lol'
+  begin
+    google.get googleuser
+  rescue
+    halt 404, { error: 'user does not exist' }.to_json
+  end
+
+  begin
+    google.delete googleuser
+  rescue => e
+    halt 400, { error: e.message }.to_json
+  end
+  { status: 'deleted', email: googleuser }.to_json
 end

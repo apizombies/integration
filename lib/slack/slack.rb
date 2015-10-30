@@ -10,11 +10,11 @@ class Slack
   end
 
   def get_slack_api_request (postfix)
-    url = URI.parse(SLACK_API_BASE_URL + postfix )
+    url = URI.parse("https://#{SLACK_API_BASE_URL}#{postfix}" )
   
     http = Net::HTTP.new(url.host, url.port)
     http.use_ssl= true
-    
+
     res,data = http.get(url.path+ "?" + url.query)
     return res.body
   end

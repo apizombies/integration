@@ -1,4 +1,5 @@
 require 'net/http'
+require 'json'
 SLACK_API_BASE_URL="slack.com:443"
 
 class Slack

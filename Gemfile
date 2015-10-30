@@ -5,3 +5,4 @@ gemspec
 
 gem 'sinatra'
 gem 'google-api-client'
+gem 'gravatar-ultimate'

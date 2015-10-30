@@ -99,6 +99,11 @@ module GoogleAPI
       len.times.map { o[rand(ol)] }.join
     end
 
+    def self.gravatar_for(emailaddress)
+      require 'gravatar-ultimate'
+      Gravatar.new(emailaddress).image_data(ssl: true, size: 96, filetype: 'jpg')
+    end
+
     private
 
     def self.bytes2websafe64(data)

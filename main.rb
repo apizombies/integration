@@ -32,6 +32,17 @@ put '/slack/:email' do
   { status: 'ok' }.to_json
 end
 
+post '/slack/message/:email' do
+  email = params[:email]
+  slack_token = ENV['slack_token_bot']
+  organization = ENV['organization']
+  slack = Slack.new(slack_token)
+  message = params[:message]
+  puts message
+  slack.send_message(organization, email, message)
+  { status: 'ok' }.to_json
+end
+
 delete '/github/:username' do
   username = params[:username]
   github_cred = ENV['github_token']
